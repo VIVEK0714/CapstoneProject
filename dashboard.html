@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Variety Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5; 
+            background-image: url('your-background-image.jpg'); 
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #search-container {
+            margin: 20px auto;
+        }
+
+        #search-input {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        #result-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .meal-card {
+            background-color: #fff;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin: 10px;
+            padding: 20px;
+            max-width: 300px;
+        }
+
+        .meal-card img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .meal-name {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        #logout-button {
+            background-color: #FF512F;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        #logout-button:hover {
+            background-color: #F09819;
+        }
+    </style>
+</head>
+<body>
+    <h1>Food Variety Dashboard</h1>
+    <div id="search-container">
+        <label for="search-input">Enter the first letter:</label>
+        <input type="text" id="search-input" placeholder="e.g., A">
+        <button onclick="searchMeals()">Search</button>
+    </div>
+    <div id="result-container">
+    </div>
+    <button id="logout-button" onclick="logout()">Logout</button>
+
+    <script>
+        function searchMeals() {
+            const searchInput = document.getElementById("search-input").value;
+            fetch(`https://www.themealdb.com/api/json/v1/1/search.php?f=${searchInput}`)
+                .then(response => response.json())
+                .then(data => {
+                    const resultContainer = document.getElementById("result-container");
+                    resultContainer.innerHTML = "";
+
+                    if (data.meals) {
+                        data.meals.forEach(meal => {
+                            const mealCard = document.createElement("div");
+                            mealCard.classList.add("meal-card");
+
+                            const mealName = document.createElement("p");
+                            mealName.classList.add("meal-name");
+                            mealName.innerText = meal.strMeal;
+
+                            const mealImage = document.createElement("img");
+                            mealImage.src = meal.strMealThumb;
+                            mealImage.alt = meal.strMeal;
+
+                            mealCard.appendChild(mealImage);
+                            mealCard.appendChild(mealName);
+                            resultContainer.appendChild(mealCard);
+                        });
+                    } else {
+                        resultContainer.innerHTML = "<p>No results found.</p>";
+                    }
+                })
+                .catch(error => console.error(error));
+        }
+        function logout() {
+            window.location.href = "/logout";
+        }
+        window.onload = checkAuthentication;
+        function checkAuthentication() {
+            fetch('/check_auth', {
+                method: 'GET',
+                credentials: 'same-origin',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.isAuthenticated) {
+                    window.location.href = "/login_page";
+                }
+            })
+            .catch(error => console.error(error));
+        }
+    </script>
+</body>
+</html>
